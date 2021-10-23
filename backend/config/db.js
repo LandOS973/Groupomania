@@ -1,13 +1,13 @@
 // get the client
 const mysql = require('mysql2');
-const { Sequelize } = require('sequelize');
+const dotenv = require("dotenv").config();
 
 // Create the connection pool. The pool-specific settings are the defaults
 const pool = mysql.createPool({
-  host: 'localhost',
-  user: 'root',
+  host: process.env.DB_HOST,
+  user: process.env.DB_USER, 
   database: 'groupomania',
-  password: 'Thomasleboss.31'
+  password: process.env.DB_PASS
 });
 
  

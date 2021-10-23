@@ -1,5 +1,7 @@
 const{ pool }= require('../config/db');
 const bcrypt = require("bcrypt");
+const jwt = require('jsonwebtoken');
+const dotenv = require("dotenv").config();
 
 
 exports.test = (req,res,next) => {
@@ -37,13 +39,13 @@ exports.login = (req, res, next) => {
         bcrypt.compare(req.body.password, user.password)
             .then(valid => {
                 if (!valid) {
-                    return res.status(401).json({ error: "mauvais mdp !" })
+                    return res.status(401).json({ error: " Mot de passe incorrect !" })
                 }
                 res.status(200).json({
-                    userId: user._id,
+                    userId: user.id,
                     token: jwt.sign(
-                        { userId: user._id },
-                        process.env.ACCESS_TOKEN,
+                        { userId: user.id },
+                        process.env.SECRET_TOKEN_KEY,
                         { expiresIn: "24h" },
                     ),
                 });
