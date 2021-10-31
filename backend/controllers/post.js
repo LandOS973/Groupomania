@@ -1,5 +1,6 @@
 const { pool } = require('../config/db');
 const fs = require("fs");
+const { text } = require('express');
 
 exports.getAll = (req, res, next) => {
     // TOUT LES POST DU DERNIER AU PREMIER
@@ -13,16 +14,17 @@ exports.getAll = (req, res, next) => {
 
 exports.create = (req, res, next) => {
     // DEFINI LES CHAMPS REMPLI
-    const image = (req.file) ? `${req.protocol}://${req.get('host')}/images/${req.file.filename}` : "";
+    const image = (req.file) ? `${req.protocol}://${req.get('host')}/images/post/${req.file.filename}` : "";
     const textSend = (req.body.post) ? req.body.post.text : " ";
     const post = {
         text: textSend,
         imageUrl: image,
         like: 0,
-        date: new Date().toLocaleString("af-ZA", { timeZone: "Europe/Paris" })
+        date: new Date().toLocaleString("af-ZA", { timeZone: "Europe/Paris" }),
+        authorId: req.body.userId,
     };
     //ENVOIE LA REQUETE AVEC MULTER ET LES VALEURS PAR DEFAUT
-    let sql = `INSERT INTO post (text, imageUrl, date) VALUES ("${post.text}","${post.imageUrl}","${post.date}");`;
+    let sql = `INSERT INTO post (text, imageUrl, date, authorId) VALUES ("${post.text}","${post.imageUrl}","${post.date}","${post.authorId}");`;
     pool.execute(sql, function (err, result) {
         if (err) throw err;
         res.status(201).json({ message: `Post ajouté` });
@@ -37,10 +39,10 @@ exports.delete = (req, res, next) => {
         else {
             // SI LE POST A UNE IMAGE, LA SUPPRIMER DU DOSSIER IMAGES
             if (result[0].imageUrl != "") {
-                const name = result[0].imageUrl.split('/images/')[1];
+                const name = result[0].imageUrl.split('/images/post/')[1];
                 fs.unlink(`images/${name}`, () => {
                     if (err) console.log(err);
-                    else console.log('Image supprimée !');
+                    else console.log('Image supprimée  !');
                 })
             }
             // SUPPRIME LE POST DANS LA DB
@@ -62,15 +64,15 @@ exports.modify = (req, res, next) => {
             else {
                 // SI LE POST A UNE IMAGE, LA SUPPRIMER DU DOSSIER IMAGES
                 if (result[0].imageUrl != "") {
-                    const name = result[0].imageUrl.split('/images/')[1];
+                    const name = result[0].imageUrl.split('/images/post/')[1];
                     fs.unlink(`images/${name}`, () => {
                         if (err) console.log(err);
                         else console.log('Image modifiée !');
                     })
                 }
                 // RECUPERE LES INFOS ENVOYER PAR LE FRONT 
-                const image = (req.file) ? `${req.protocol}://${req.get('host')}/images/${req.file.filename}` : "";
-                const textSend = (req.body.post) ? req.body.post.text : " ";
+                let image = (req.file) ? `${req.protocol}://${req.get('host')}/images/post/${req.file.filename}` : "";
+                let textSend = (req.body.post) ? req.body.post.text : " ";
                 const post = {
                     text: textSend,
                     imageUrl: image,
