@@ -18,6 +18,10 @@ body{
   color: #2c3e50;
 }
 
+* {
+  box-sizing: border-box;
+}
+
 #nav {
   padding: 30px;
   background-color: #091F43;
