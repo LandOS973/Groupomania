@@ -25,7 +25,7 @@ exports.signup = (req, res, next) => {
             password : hash,
             imageUrl : image,
         }
-        let sql = `INSERT INTO user (nom, prenom, email, password, imageUrl) VALUES ("${user.nom}","${user.prenom}","${user.email}","${user.password}","${user.imageUrl}")`;
+        let sql = `INSERT INTO user (nom, prenom, email, password, pp) VALUES ("${user.nom}","${user.prenom}","${user.email}","${user.password}","${user.imageUrl}")`;
         pool.execute(sql,function(err,result){
             if(err) throw err;
             res.status(201).json({ message: `Utilisateur ${user.prenom} ajouté` });

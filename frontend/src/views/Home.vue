@@ -1,7 +1,9 @@
 <template>
   <div class="home">
-    <NewPost />
-    <Post />
+    <div class="container">
+      <NewPost />
+      <Post />
+    </div>
   </div>
 </template>
 

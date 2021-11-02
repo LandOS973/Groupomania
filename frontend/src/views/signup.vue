@@ -39,12 +39,7 @@
             name="prenom"
             placeholder="Ton prenom"
           />
-          <input
-            type="text"
-            id="email"
-            name="email"
-            placeholder="Ton email"
-          />
+          <input type="text" id="email" name="email" placeholder="Ton email" />
           <input
             type="text"
             id="password"
@@ -76,9 +71,9 @@
 </template>
 
 <style lang="scss" scoped>
-.error{
+.error {
   color: red;
-  margin-top: -30px ;
+  margin-top: -30px;
 }
 .signup {
   margin-top: 70px;
@@ -259,11 +254,13 @@ input[type="text"]:placeholder {
 }
 
 @keyframes incorrect {
-  0%{
+  0% {
     transform: translateX(20px);
-  }50%{
+  }
+  50% {
     transform: translateX(-20px);
-  }100%{
+  }
+  100% {
     transform: translateX(0px);
   }
 }
@@ -294,7 +291,7 @@ input[type="text"]:placeholder {
   }
 }
 
-.incorrect{
+.incorrect {
   animation: incorrect ease-in 1;
 }
 
@@ -343,6 +340,8 @@ input[type="text"]:placeholder {
 
 <script>
 import axios from "axios";
+
+
 
 export default {
   data() {
@@ -393,8 +392,11 @@ export default {
         .then(function (response) {
           const token = response.data.token;
           const userId = response.data.userId;
-          localStorage.setItem("userId", userId); // store the token in localstorage
           document.cookie = `user-token=${token}; SameSite=Lax; Secure; max-age=86400;`;
+          document.cookie = `userId=${userId}; SameSite=Lax; Secure; max-age=86400;`;
+          this.$session.start();
+          this.$session.set("jwt", token);
+          this.$session.set("userId", userId);
           self.$router.push("/");
         })
         .catch(function (error) {
