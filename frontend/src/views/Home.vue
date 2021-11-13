@@ -1,7 +1,6 @@
 <template>
   <div class="home">
     <div class="container">
-      <NewPost />
       <Post />
     </div>
   </div>
@@ -13,13 +12,12 @@
 <script>
 // @ is an alias to /src
 import Post from "@/components/post.vue";
-import NewPost from "../components/newPost.vue";
 
 export default {
   name: "Home",
   components: {
     Post,
-    NewPost,
+
   },
 };
 </script>

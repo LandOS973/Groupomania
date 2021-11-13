@@ -1,14 +1,63 @@
 <template>
-  <div id="nav">
-    <router-link to="/"><img id="nav_groupomania" src="../image/icon-left-font-monochrome-white.svg" alt="lien acceuil"></router-link>
-  </div>
+  <header>
+    <div class="navigation">
+      <nav
+        class="
+          navbar navbar-expand-lg navbar-light
+          white
+          fixed-top
+          nav
+          justify-content-center
+        "
+      >
+        <ul class="nav justify-content-center">
+          <li class="nav-item">
+            <a class="nav-link">
+              <router-link to="/"
+                ><img
+                  id="nav_groupomania"
+                  src="../image/icon-left-font-monochrome-white.svg"
+                  alt="lien acceuil"
+              /></router-link>
+            </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link">
+              <router-link to="/connect"
+                ><img
+                  id="nav_groupomania"
+                  src="../image/sign-out-alt-solid.svg"
+                  alt="logout"
+                  class="logout"
+              /></router-link>
+            </a>
+          </li>
+        </ul>
+      </nav>
+    </div>
+  </header>
   <router-view />
 </template>
 
 <style lang="scss">
-body{
-  margin : 0;
-  background-color: #F0F2F5;
+.logout{
+  height: 30px;
+}
+.navbar {
+  border-bottom: 1px solid #dbdbdb;
+}
+
+.navigation {
+  padding-bottom: 30px;
+}
+
+.white {
+  background-color: #fff;
+}
+
+body {
+  margin: 0;
+  background-color: #fafafa;
 }
 
 #app {
@@ -24,8 +73,8 @@ body{
 
 #nav {
   padding: 30px;
-  background-color: #091F43;
-  &_groupomania{
+  background-color: #091f43;
+  &_groupomania {
     width: 200px;
   }
   a {
@@ -33,8 +82,8 @@ body{
     color: #2c3e50;
 
     &.router-link-exact-active {
-      color: #D1515A;
+      color: #d1515a;
     }
-  } 
+  }
 }
 </style>

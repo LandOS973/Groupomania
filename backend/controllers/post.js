@@ -1,12 +1,11 @@
 const { pool } = require('../config/db');
 const fs = require("fs");
-const { text } = require('express');
 
 exports.getAll = (req, res, next) => {
     // TOUT LES POST DU DERNIER AU PREMIER
     let sql = "SELECT * FROM post p JOIN user WHERE user.id=authorId ORDER BY date DESC;";
     pool.execute(sql, function (err, result) {
-        if (err) res.status(400).json({ e });
+        if (err) res.status(400).json({ err });
         res.status(200).json(result)
     });
 }
@@ -31,21 +30,21 @@ exports.create = (req, res, next) => {
 };
 
 exports.delete = (req, res, next) => {
-    let sql = `SELECT * FROM post WHERE id = ${req.params.id}`;
+    let sql = `SELECT * FROM post WHERE postId = ${req.params.id}`;
     pool.execute(sql, function (err, result) {
-        if (err) res.status(400).json({ e });
+        if (err) res.status(400).json({ err });
         if (!result[0]) res.status(400).json({ message: "Aucun id ne correspond dans la table" });
         else {
             // SI LE POST A UNE IMAGE, LA SUPPRIMER DU DOSSIER IMAGES
             if (result[0].imageUrl != "") {
                 const name = result[0].imageUrl.split('/images/post/')[1];
-                fs.unlink(`images/${name}`, () => {
+                fs.unlink(`images/post/${name}`, () => {
                     if (err) console.log(err);
                     else console.log('Image supprimée  !');
                 })
             }
             // SUPPRIME LE POST DANS LA DB
-            let sql2 = `DELETE FROM post WHERE id = ${req.params.id}`;
+            let sql2 = `DELETE FROM post WHERE postId = ${req.params.id}`;
             pool.execute(sql2, function (err, result) {
                 if (err) throw err;
                 res.status(201).json({ message: `Post supprimé` });

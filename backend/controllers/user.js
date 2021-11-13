@@ -57,3 +57,12 @@ exports.login = (req, res, next) => {
             .catch(error => res.status(500).json({  message : "Erreur authentification" }));
     })
 };
+
+exports.getOne = (req, res, next) => {
+    // TOUT LES POST DU DERNIER AU PREMIER
+    let sql = `SELECT * FROM user WHERE user.id=${req.body.userId};`;
+    pool.execute(sql, function (err, result) {
+        if (err) res.status(400).json({ err });
+        res.status(200).json(result)
+    });
+}
