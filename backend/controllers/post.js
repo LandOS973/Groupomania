@@ -10,6 +10,14 @@ exports.getAll = (req, res, next) => {
     });
 }
 
+exports.getByAuthor = (req,res,next) => {
+    let sql = `SELECT * FROM post WHERE authorId=${req.body.id} ORDER BY date DESC;`;
+    pool.execute(sql, function (err, result) {
+        if (err) res.status(400).json({ err });
+        res.status(200).json(result)
+    });
+}
+
 exports.create = (req, res, next) => {
     // DEFINI LES CHAMPS REMPLI
     const image = (req.file) ? `${req.protocol}://${req.get('host')}/images/post/${req.file.filename}` : "";

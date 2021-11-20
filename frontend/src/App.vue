@@ -13,7 +13,7 @@
         <ul class="nav justify-content-center">
           <li class="nav-item">
             <a class="nav-link">
-              <router-link to="/"
+              <router-link to="/home"
                 ><img
                   id="nav_groupomania"
                   src="../image/icon-left-font-monochrome-white.svg"
@@ -21,10 +21,17 @@
               /></router-link>
             </a>
           </li>
+          <li class="nav-item" v-if="user">
+            <a class="nav-link">
+              <router-link :to="{ name: 'user', params: { userId: user.id}}">
+                <img v-bind:src="user.pp" alt="pp" class="userPageLink"/>
+              </router-link>
+            </a>
+          </li>
           <li class="nav-item">
             <a class="nav-link">
-              <router-link to="/connect"
-                ><img
+              <router-link to="/"
+                ><img @click="deconnexion"
                   id="nav_groupomania"
                   src="../image/sign-out-alt-solid.svg"
                   alt="logout"
@@ -40,11 +47,20 @@
 </template>
 
 <style lang="scss">
-.logout{
+.userPageLink{
+  height: 40px;
+  margin-top: 0px;
+  margin-bottom: 0px;
+  margin-left: 50px;
+  margin-right: 40px;
+}
+
+.logout {
   height: 30px;
 }
 .navbar {
   border-bottom: 1px solid #dbdbdb;
+  height: 55px;
 }
 
 .navigation {
@@ -58,6 +74,7 @@
 body {
   margin: 0;
   background-color: #fafafa;
+  font-family: 'Roboto', sans-serif;
 }
 
 #app {
@@ -87,3 +104,53 @@ body {
   }
 }
 </style>
+
+
+<script>
+import axios from "axios";
+
+export default {
+  data() {
+    return {
+      user: null,
+      token: document.cookie ? document.cookie
+        .split("; ")
+        .find((row) => row.startsWith("user-token="))
+        .split("=")[1] : null,
+      userId: document.cookie ? document.cookie
+        .split("; ")
+        .find((row) => row.startsWith("userId="))
+        .split("=")[1] : null,
+    };
+  },
+  methods: {
+    deconnexion(){
+      document.cookie = "userId=";
+      document.cookie = "user-token=";
+      this.$router.go();
+    },
+    getCurrentUser() {
+      const self = this;
+      axios
+        .post(
+          "http://localhost:3000/api/user",
+          { userId: self.userId },
+          {
+            headers: {
+              Authorization: `Bearer ${self.token}`,
+            },
+          }
+        )
+        .then((response) => (self.user = response.data[0]))
+        .catch(function (error) {
+          if (error.response && error.response.status === 403) {
+            self.$router.push("/");
+          }
+        });
+    },
+  },
+  mounted() {
+    this.getCurrentUser();
+  },
+};
+</script>

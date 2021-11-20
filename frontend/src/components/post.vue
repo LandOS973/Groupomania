@@ -1,201 +1,218 @@
 <template>
-  <div class="d-flex justify-content-center newPost">
-    <div
-      class="
-        home
-        col-sm-8 col-lg-6
-        d-flex
-        flex-row
-        justify-content-center
-        align-items-center
-        p-2
-        bg-white
-        border
-        mt-5
-      "
-    >
-      <div class="form">
-        <form v-on:submit.prevent>
-          <div
-            class="
-              form-group
-              mb-3
-              col-12
-              d-flex
-              justify-content-center
-              align-items-center
-            "
-          >
-            <img v-if="user" v-bind:src="user.pp" alt="pp" class="ppPost" />
-            <input
-              type="text"
-              class="form-control mb-2"
-              id="text"
-              aria-describedby="emailHelp"
-              placeholder="Quoi de neuf ?"
-            />
-          </div>
-          <div class="d-flex justify-content-between">
-            <input
-              @change="upload2"
-              type="file"
-              id="image"
-              name="image"
-              accept="image/png, image/jpeg"
-            />
-            <button @click="addPost()" class="publier btn btn-primary">
-              Publier
-            </button>
-          </div>
-        </form>
-      </div>
-    </div>
-  </div>
-  <div
-    v-for="post in posts"
-    :key="post.postId"
-    class="d-flex justify-content-center"
-  >
-    <div class="bg-white border mt-2 mb-2 col-sm-8 col-lg-6 posts">
-      <div>
-        <div
-          class="
-            d-flex
-            flex-row
-            justify-content-between
-            align-items-center
-            p-2
-            border-bottom
-            infopost
-          "
-        >
-          <div class="d-flex flex-row align-items-center px-2">
-            <img class="rounded-circle pp" v-bind:src="post.pp" width="45" />
-            <div class="d-flex flex-column flex-wrap ml-2">
-              <span class="font-weight-bold nomUser"
-                >{{ post.prenom }} {{ post.nom }}</span
-              ><span class="text-black-50 time">Posté le {{ post.date }}</span>
+  <router-view>
+    <div class="d-flex justify-content-center newPost">
+      <div
+        class="
+          home
+          col-sm-8 col-lg-6
+          d-flex
+          flex-row
+          justify-content-center
+          align-items-center
+          p-2
+          bg-white
+          border
+          mt-5
+        "
+      >
+        <div class="form">
+          <form v-on:submit.prevent>
+            <div
+              class="
+                form-group
+                mb-3
+                col-12
+                d-flex
+                justify-content-center
+                align-items-center
+              "
+            >
+              <img v-if="user" v-bind:src="user.pp" alt="pp" class="ppPost" />
+              <input
+                type="text"
+                class="form-control mb-2"
+                id="text"
+                aria-describedby="emailHelp"
+                placeholder="Quoi de neuf ?"
+              />
             </div>
-            <img
-              class="deletePost"
-              src="../../image/times-solid.svg"
-              alt="supprimer"
-              v-if="post.authorId == userId"
-              @click="deletePost(post.postId, post.authorId)"
-            />
-          </div>
+            <div class="d-flex justify-content-between">
+              <input
+                @change="upload2"
+                type="file"
+                id="image"
+                name="image"
+                accept="image/png, image/jpeg"
+              />
+              <button @click="addPost()" class="publier btn btn-primary">
+                Publier
+              </button>
+            </div>
+          </form>
         </div>
       </div>
-      <div  v-if="post.text != ' ' ">
-        <span class="text">{{ post.text }}</span>
-      </div>
-      <div v-if="post.imageUrl" class="mb-2">
+    </div>
+    <div
+      v-for="post in posts"
+      :key="post.postId"
+      class="d-flex justify-content-center"
+    >
+      <div class="bg-white border mt-2 mb-2 col-sm-8 col-lg-6 posts">
+        <div>
+          <div
+            class="
+              d-flex
+              flex-row
+              justify-content-between
+              align-items-center
+              p-2
+              border-bottom
+              infopost
+            "
+          >
+            <div class="d-flex flex-row align-items-center px-2">
+              <router-link
+                :to="{ name: 'user', params: { userId: post.authorId } }"
+              >
+                <img
+                  class="rounded-circle pp"
+                  v-bind:src="post.pp"
+                  width="45"
+                />
+              </router-link>
+
+              <div class="d-flex flex-column flex-wrap ml-2">
+                <span class="font-weight-bold nomUser"
+                  >{{ post.prenom }} {{ post.nom }}</span
+                ><span class="text-black-50 time"
+                  >Posté le {{ post.date }}</span
+                >
+              </div>
+              <img
+                class="deletePost"
+                src="../../image/times-solid.svg"
+                alt="supprimer"
+                v-if="post.authorId == userId"
+                @click="deletePost(post.postId, post.authorId)"
+              />
+            </div>
+          </div>
+        </div>
+        <div v-if="post.text != ' '">
+          <span class="text">{{ post.text }}</span>
+        </div>
+        <div v-if="post.imageUrl" class="mb-2">
           <img
             class="img-fluid img-responsive imagePost"
             v-bind:src="post.imageUrl"
           />
-      </div>
-      <div class="react">
-        <div class="like" @click="liked">
-          <svg
-            @click="like(post.postId)"
-            v-if="likedPost.includes(post.postId)"
-            aria-label="Je n’aime plus"
-            class="_8-yf5 heart"
-            color="#ed4956"
-            fill="#ed4956"
-            height="30"
-            role="img"
-            viewBox="0 0 48 48"
-            width="24"
-          >
-            <path
-              d="M34.6 3.1c-4.5 0-7.9 1.8-10.6 5.6-2.7-3.7-6.1-5.5-10.6-5.5C6 3.1 0 9.6 0 17.6c0 7.3 5.4 12 10.6 16.5.6.5 1.3 1.1 1.9 1.7l2.3 2c4.4 3.9 6.6 5.9 7.6 6.5.5.3 1.1.5 1.6.5s1.1-.2 1.6-.5c1-.6 2.8-2.2 7.8-6.8l2-1.8c.7-.6 1.3-1.2 2-1.7C42.7 29.6 48 25 48 17.6c0-8-6-14.5-13.4-14.5z"
-            ></path>
-          </svg>
-          <svg
-            @click="like(post.postId)"
-            v-else
-            aria-label="J’aime"
-            class="_8-yf5 svg-react"
-            color="#262626"
-            fill="#262626"
-            height="30"
-            role="img"
-            viewBox="0 0 48 48"
-            width="24"
-          >
-            <path
-              d="M34.6 6.1c5.7 0 10.4 5.2 10.4 11.5 0 6.8-5.9 11-11.5 16S25 41.3 24 41.9c-1.1-.7-4.7-4-9.5-8.3-5.7-5-11.5-9.2-11.5-16C3 11.3 7.7 6.1 13.4 6.1c4.2 0 6.5 2 8.1 4.3 1.9 2.6 2.2 3.9 2.5 3.9.3 0 .6-1.3 2.5-3.9 1.6-2.3 3.9-4.3 8.1-4.3m0-3c-4.5 0-7.9 1.8-10.6 5.6-2.7-3.7-6.1-5.5-10.6-5.5C6 3.1 0 9.6 0 17.6c0 7.3 5.4 12 10.6 16.5.6.5 1.3 1.1 1.9 1.7l2.3 2c4.4 3.9 6.6 5.9 7.6 6.5.5.3 1.1.5 1.6.5.6 0 1.1-.2 1.6-.5 1-.6 2.8-2.2 7.8-6.8l2-1.8c.7-.6 1.3-1.2 2-1.7C42.7 29.6 48 25 48 17.6c0-8-6-14.5-13.4-14.5z"
-            ></path>
-          </svg>
-          <span class="nbr">{{ post.like }}</span>
         </div>
-        <div class="comment">
-          <svg
-            @click="afficherComment"
-            aria-label="Commenter"
-            class="_8-yf5 svg-react"
-            color="#262626"
-            fill="#262626"
-            height="24"
-            role="img"
-            viewBox="0 0 48 48"
-            width="24"
-          >
-            <path
-              clip-rule="evenodd"
-              d="M47.5 46.1l-2.8-11c1.8-3.3 2.8-7.1 2.8-11.1C47.5 11 37 .5 24 .5S.5 11 .5 24 11 47.5 24 47.5c4 0 7.8-1 11.1-2.8l11 2.8c.8.2 1.6-.6 1.4-1.4zm-3-22.1c0 4-1 7-2.6 10-.2.4-.3.9-.2 1.4l2.1 8.4-8.3-2.1c-.5-.1-1-.1-1.4.2-1.8 1-5.2 2.6-10 2.6-11.4 0-20.6-9.2-20.6-20.5S12.7 3.5 24 3.5 44.5 12.7 44.5 24z"
-              fill-rule="evenodd"
-            ></path>
-          </svg>
-          <span class="nbr">{{ post.comment }}</span>
-        </div>
-      </div>
-      <div class="block-com disp">
-        <div
-          class="comments"
-          v-for="comment in comments"
-          :key="comment.idComment"
-        >
-          <div class="pp" v-if="post.postId === comment.postId">
-            <img
-              class="rounded-circle pp2"
-              v-bind:src="comment.pp"
-              alt=""
-              srcset=""
-            />
-          </div>
-          <div v-if="post.postId === comment.postId" class="commentaire">
-            <span class="commentAuthor"
-              >{{ comment.prenom }} {{ comment.nom }}</span
+        <div class="react">
+          <div class="like" @click="liked">
+            <svg
+              @click="like(post.postId)"
+              v-if="likedPost.includes(post.postId)"
+              aria-label="Je n’aime plus"
+              class="_8-yf5 heart"
+              color="#ed4956"
+              fill="#ed4956"
+              height="30"
+              role="img"
+              viewBox="0 0 48 48"
+              width="24"
             >
-            <p class="commentText">{{ comment.comment }}</p>
-            <img
-              class="delete"
-              src="../../image/times-solid.svg"
-              alt="supprimer"
-              v-if="comment.id == userId"
-              @click="
-                deleteComment(comment.idComment, comment.authorId, post.postId)
-              "
-            />
+              <path
+                d="M34.6 3.1c-4.5 0-7.9 1.8-10.6 5.6-2.7-3.7-6.1-5.5-10.6-5.5C6 3.1 0 9.6 0 17.6c0 7.3 5.4 12 10.6 16.5.6.5 1.3 1.1 1.9 1.7l2.3 2c4.4 3.9 6.6 5.9 7.6 6.5.5.3 1.1.5 1.6.5s1.1-.2 1.6-.5c1-.6 2.8-2.2 7.8-6.8l2-1.8c.7-.6 1.3-1.2 2-1.7C42.7 29.6 48 25 48 17.6c0-8-6-14.5-13.4-14.5z"
+              ></path>
+            </svg>
+            <svg
+              @click="like(post.postId)"
+              v-else
+              aria-label="J’aime"
+              class="_8-yf5 svg-react"
+              color="#262626"
+              fill="#262626"
+              height="30"
+              role="img"
+              viewBox="0 0 48 48"
+              width="24"
+            >
+              <path
+                d="M34.6 6.1c5.7 0 10.4 5.2 10.4 11.5 0 6.8-5.9 11-11.5 16S25 41.3 24 41.9c-1.1-.7-4.7-4-9.5-8.3-5.7-5-11.5-9.2-11.5-16C3 11.3 7.7 6.1 13.4 6.1c4.2 0 6.5 2 8.1 4.3 1.9 2.6 2.2 3.9 2.5 3.9.3 0 .6-1.3 2.5-3.9 1.6-2.3 3.9-4.3 8.1-4.3m0-3c-4.5 0-7.9 1.8-10.6 5.6-2.7-3.7-6.1-5.5-10.6-5.5C6 3.1 0 9.6 0 17.6c0 7.3 5.4 12 10.6 16.5.6.5 1.3 1.1 1.9 1.7l2.3 2c4.4 3.9 6.6 5.9 7.6 6.5.5.3 1.1.5 1.6.5.6 0 1.1-.2 1.6-.5 1-.6 2.8-2.2 7.8-6.8l2-1.8c.7-.6 1.3-1.2 2-1.7C42.7 29.6 48 25 48 17.6c0-8-6-14.5-13.4-14.5z"
+              ></path>
+            </svg>
+            <span class="nbr">{{ post.like }}</span>
+          </div>
+          <div class="comment">
+            <svg
+              @click="afficherComment"
+              aria-label="Commenter"
+              class="_8-yf5 svg-react"
+              color="#262626"
+              fill="#262626"
+              height="24"
+              role="img"
+              viewBox="0 0 48 48"
+              width="24"
+            >
+              <path
+                clip-rule="evenodd"
+                d="M47.5 46.1l-2.8-11c1.8-3.3 2.8-7.1 2.8-11.1C47.5 11 37 .5 24 .5S.5 11 .5 24 11 47.5 24 47.5c4 0 7.8-1 11.1-2.8l11 2.8c.8.2 1.6-.6 1.4-1.4zm-3-22.1c0 4-1 7-2.6 10-.2.4-.3.9-.2 1.4l2.1 8.4-8.3-2.1c-.5-.1-1-.1-1.4.2-1.8 1-5.2 2.6-10 2.6-11.4 0-20.6-9.2-20.6-20.5S12.7 3.5 24 3.5 44.5 12.7 44.5 24z"
+                fill-rule="evenodd"
+              ></path>
+            </svg>
+            <span class="nbr">{{ post.comment }}</span>
           </div>
         </div>
-      </div>
-      <div class="col-10 d-flex justify-content-center comment">
-        <input
-          v-on:keyup.enter="comment($event, post.postId)"
-          @change="upload"
-          type="text"
-          class="form-control mt-3 mb-3"
-          id="comment"
-          aria-describedby="comment"
-          placeholder="Ajoutez un commentaire ..."
-        />
+        <div class="block-com disp">
+          <div
+            class="comments"
+            v-for="comment in comments"
+            :key="comment.idComment"
+          >
+            <div class="pp" v-if="post.postId === comment.postId">
+              <img
+                class="rounded-circle pp2"
+                v-bind:src="comment.pp"
+                alt=""
+                srcset=""
+              />
+            </div>
+            <div v-if="post.postId === comment.postId" class="commentaire">
+              <span class="commentAuthor"
+                >{{ comment.prenom }} {{ comment.nom }}</span
+              >
+              <p class="commentText">{{ comment.comment }}</p>
+              <img
+                class="delete"
+                src="../../image/times-solid.svg"
+                alt="supprimer"
+                v-if="comment.id == userId"
+                @click="
+                  deleteComment(
+                    comment.idComment,
+                    comment.authorId,
+                    post.postId
+                  )
+                "
+              />
+            </div>
+          </div>
+        </div>
+        <div class="col-10 d-flex justify-content-center comment">
+          <input
+            v-on:keyup.enter="comment($event, post.postId)"
+            @change="upload"
+            type="text"
+            class="form-control mt-3 mb-3"
+            id="comment"
+            aria-describedby="comment"
+            placeholder="Ajoutez un commentaire ..."
+          />
+        </div>
       </div>
     </div>
-  </div>
+  </router-view>
 </template>
 
 <script>
@@ -208,13 +225,20 @@ export default {
       likedPost: [],
       posts: null,
       postsRecive: null,
-      token: null,
+      token: document.cookie
+        ? document.cookie
+            .split("; ")
+            .find((row) => row.startsWith("user-token="))
+            .split("=")[1]
+        : null,
       comments: null,
       newComment: null,
       userId: document.cookie
-        .split("; ")
-        .find((row) => row.startsWith("userId="))
-        .split("=")[1],
+        ? document.cookie
+            .split("; ")
+            .find((row) => row.startsWith("userId="))
+            .split("=")[1]
+        : null,
     };
   },
   methods: {
@@ -389,7 +413,7 @@ export default {
         })
         .catch(function (error) {
           if (error.response && error.response.status === 401) {
-            self.$router.push("/connect");
+            self.$router.push("/");
           }
         });
       axios
@@ -399,36 +423,52 @@ export default {
         .then((response) => (this.comments = response.data))
         .catch(function (error) {
           if (error.response && error.response.status === 401) {
-            self.$router.push("/connect");
+            self.$router.push("/");
           }
         });
     },
   },
   mounted() {
-    this.getPost();
-    this.liked();
     this.userId = document.cookie
-      .split("; ")
-      .find((row) => row.startsWith("userId="))
-      .split("=")[1];
+      ? document.cookie
+          .split("; ")
+          .find((row) => row.startsWith("userId="))
+          .split("=")[1]
+      : null;
+    this.token = document.cookie
+      ? document.cookie
+          .split("; ")
+          .find((row) => row.startsWith("user-token="))
+          .split("=")[1]
+      : null;
     const self = this;
     axios
-      .post("http://localhost:3000/api/user", { userId: self.userId })
+      .post(
+        "http://localhost:3000/api/user",
+        { userId: self.userId },
+        {
+          headers: {
+            Authorization: `Bearer ${self.token}`,
+          },
+        }
+      )
       .then((response) => (self.user = response.data[0]))
       .catch(function (error) {
-        if (error.response && error.response.status === 401) {
-          self.$router.push("/connect");
+        if (error.response && error.response.status === 403) {
+          self.$router.push("/");
         }
       });
+    this.getPost();
+    this.liked();
   },
 };
 </script>
 
 <style lang="scss" scoped>
-.infopost{
+.infopost {
   position: relative;
 }
-.text{
+.text {
   display: block;
   padding-top: 15px;
   padding-bottom: 10px;
@@ -439,14 +479,14 @@ export default {
 .imagePost {
   max-height: 500px;
   width: 100%;
-  margin:0px;
+  margin: 0px;
   padding: 0px;
 }
 
-.svg-react{
-  &:hover{
-    fill:#AAAAAA;
-     animation: heart 0.5s cubic-bezier(0.06, 1.16, 0.83, 0.67) forwards;
+.svg-react {
+  &:hover {
+    fill: #aaaaaa;
+    animation: heart 0.5s cubic-bezier(0.06, 1.16, 0.83, 0.67) forwards;
   }
 }
 
@@ -466,7 +506,8 @@ export default {
 
 .comment {
   cursor: pointer;
-  margin: auto;
+  margin-left: auto;
+  margin-right: auto;
   &__img {
     height: 40px;
   }
@@ -508,7 +549,6 @@ export default {
   margin-left: 10px;
   margin-right: 10px;
 }
-
 
 .posts:hover {
   .deletePost {
