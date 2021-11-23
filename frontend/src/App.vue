@@ -23,15 +23,27 @@
           </li>
           <li class="nav-item" v-if="user">
             <a class="nav-link">
-              <router-link :to="{ name: 'user', params: { userId: user.id}}">
-                <img v-bind:src="user.pp" alt="pp" class="userPageLink"/>
+              <router-link :to="{ name: 'user', params: { userId: user.id } }">
+                <img v-bind:src="user.pp" alt="pp" class="userPageLink" />
+              </router-link>
+            </a>
+          </li>
+          <li class="nav-item" v-if="user">
+            <a class="nav-link">
+              <router-link to="/settings">
+                <img
+                  src="../image/user-cog-solid.svg"
+                  alt="setting"
+                  class="setting"
+                />
               </router-link>
             </a>
           </li>
           <li class="nav-item">
             <a class="nav-link">
               <router-link to="/"
-                ><img @click="deconnexion"
+                ><img
+                  @click="deconnexion"
                   id="nav_groupomania"
                   src="../image/sign-out-alt-solid.svg"
                   alt="logout"
@@ -47,12 +59,18 @@
 </template>
 
 <style lang="scss">
-.userPageLink{
+.setting {
+  height: 32px;
+  margin-left: 20px;
+}
+.userPageLink {
   height: 40px;
+  width: 40px;
   margin-top: 0px;
   margin-bottom: 0px;
   margin-left: 50px;
   margin-right: 40px;
+  border-radius: 100%;
 }
 
 .logout {
@@ -74,7 +92,7 @@
 body {
   margin: 0;
   background-color: #fafafa;
-  font-family: 'Roboto', sans-serif;
+  font-family: "Roboto", sans-serif;
 }
 
 #app {
@@ -108,23 +126,31 @@ body {
 
 <script>
 import axios from "axios";
+const CryptoJS = require("crypto-js");
 
 export default {
   data() {
     return {
       user: null,
-      token: document.cookie ? document.cookie
-        .split("; ")
-        .find((row) => row.startsWith("user-token="))
-        .split("=")[1] : null,
-      userId: document.cookie ? document.cookie
-        .split("; ")
-        .find((row) => row.startsWith("userId="))
-        .split("=")[1] : null,
+      token: document.cookie
+        ? document.cookie
+            .split("; ")
+            .find((row) => row.startsWith("user-token="))
+            .split("=")[1]
+        : null,
+      userId: document.cookie
+        ? CryptoJS.AES.decrypt(
+            document.cookie
+              .split("; ")
+              .find((row) => row.startsWith("userId="))
+              .split("=")[1],
+            this.$store.state.CryptoKey
+          ).toString(CryptoJS.enc.Utf8)
+        : null,
     };
   },
   methods: {
-    deconnexion(){
+    deconnexion() {
       document.cookie = "userId=";
       document.cookie = "user-token=";
       this.$router.go();

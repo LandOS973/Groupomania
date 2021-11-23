@@ -10,9 +10,9 @@ exports.getAll = (req, res, next) => {
     });
 }
 
-exports.getByAuthor = (req,res,next) => {
-    let sql = `SELECT * FROM post WHERE authorId=${req.body.id} ORDER BY date DESC;`;
-    pool.execute(sql, function (err, result) {
+exports.getByAuthor = (req, res, next) => {
+    let sql = `SELECT * FROM post JOIN user WHERE user.id=authorId AND authorId=? ORDER BY date DESC;`;
+    pool.execute(sql, [req.body.id], function (err, result) {
         if (err) res.status(400).json({ err });
         res.status(200).json(result)
     });
@@ -30,16 +30,16 @@ exports.create = (req, res, next) => {
         authorId: req.body.userId,
     };
     //ENVOIE LA REQUETE AVEC MULTER ET LES VALEURS PAR DEFAUT
-    let sql = `INSERT INTO post (text, imageUrl, date, authorId) VALUES ("${post.text}","${post.imageUrl}","${post.date}","${post.authorId}");`;
-    pool.execute(sql, function (err, result) {
+    let sql = `INSERT INTO post (text, imageUrl, date, authorId) VALUES (?,?,?,?);`;
+    pool.execute(sql, [post.text, post.imageUrl, post.date, post.authorId], function (err, result) {
         if (err) throw err;
         res.status(201).json({ message: `Post ajouté` });
     })
 };
 
 exports.delete = (req, res, next) => {
-    let sql = `SELECT * FROM post WHERE postId = ${req.params.id}`;
-    pool.execute(sql, function (err, result) {
+    let sql = `SELECT * FROM post WHERE postId = ?`;
+    pool.execute(sql, [req.params.id], function (err, result) {
         if (err) res.status(400).json({ err });
         if (!result[0]) res.status(400).json({ message: "Aucun id ne correspond dans la table" });
         else {
@@ -52,8 +52,8 @@ exports.delete = (req, res, next) => {
                 })
             }
             // SUPPRIME LE POST DANS LA DB
-            let sql2 = `DELETE FROM post WHERE postId = ${req.params.id}`;
-            pool.execute(sql2, function (err, result) {
+            let sql2 = `DELETE FROM post WHERE postId = ?`;
+            pool.execute(sql2, [req.params.id], function (err, result) {
                 if (err) throw err;
                 res.status(201).json({ message: `Post supprimé` });
             });
@@ -63,8 +63,8 @@ exports.delete = (req, res, next) => {
 
 exports.modify = (req, res, next) => {
     if (req.file) {
-        let sql = `SELECT * FROM post WHERE id = ${req.params.id}`;
-        pool.execute(sql, function (err, result) {
+        let sql = `SELECT * FROM post WHERE id = ?`;
+        pool.execute(sql, [req.params.id], function (err, result) {
             if (err) res.status(400).json({ e });
             if (!result[0]) res.status(400).json({ message: "Aucun id ne correspond dans la table" });
             else {
@@ -86,9 +86,9 @@ exports.modify = (req, res, next) => {
                 };
                 // UPDATE LA DB
                 let sql2 = `UPDATE post
-                SET text = '${post.textSend}', imageUrl= '${post.imageUrl}', date = '${post.date}'
-                WHERE id = ${req.params.id}`;
-                pool.execute(sql2, function (err, result) {
+                SET text = ?, imageUrl= ?, date = ?
+                WHERE id = ?`;
+                pool.execute(sql2, [post.textSend, post.imageUrl, post.date, req.params.id], function (err, result) {
                     if (err) throw err;
                     res.status(201).json({ message: `Post udpate` });
                 });
@@ -103,9 +103,9 @@ exports.modify = (req, res, next) => {
         };
         // UPDATE LA DB
         let sql2 = `UPDATE post
-                SET text = '${post.text}', date = '${post.date}'
-                WHERE id = ${req.params.id}`;
-        pool.execute(sql2, function (err, result) {
+                SET text = ?, date =?
+                WHERE id = ?`;
+        pool.execute(sql2, [post.text, post.date, req.params.id], function (err, result) {
             if (err) throw err;
             res.status(201).json({ message: `Post update` });
         });

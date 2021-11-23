@@ -2,13 +2,9 @@ import { createStore } from "vuex";
 
 export default createStore({
   state: {
-    routeUserId: null,
+    CryptoKey : "000102030405060708090a0b0c0d0e0f"
   },
-  mutations: {
-    changeUserId(state,newId){
-      state.userId = newId;
-    }
-  },
+  mutations: {},
   actions: {},
   modules: {},
 });

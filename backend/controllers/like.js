@@ -12,21 +12,21 @@ exports.like = (req, res, next) => {
             }
         }
         if (!userLiked) {
-            let sql = `UPDATE post SET post.like = post.like + 1 WHERE postId='${req.body.postId}';`;
-            pool.execute(sql, function (err, result) {
+            let sql = `UPDATE post SET post.like = post.like + 1 WHERE postId=?;`;
+            pool.execute(sql, [req.body.postId], function (err, result) {
                 if (err) res.status(400).json({ err });
-                let sql2 = `INSERT INTO groupomania.like (postId, userId) VALUES ("${req.body.postId}","${req.body.userId}");`;
-                pool.execute(sql2, function (err, result) {
+                let sql2 = `INSERT INTO groupomania.like (postId, userId) VALUES (?,?);`;
+                pool.execute(sql2,[req.body.postId, req.body.userId], function (err, result) {
                     if (err) res.status(400).json({ err });
                     res.status(200).json(result)
                 });
             });
         } else {
-            let sql = `UPDATE post SET post.like = post.like - 1 WHERE postId='${req.body.postId}';`;
-            pool.execute(sql, function (err, result) {
+            let sql = `UPDATE post SET post.like = post.like - 1 WHERE postId=?;`;
+            pool.execute(sql,[req.body.postId], function (err, result) {
                 if (err) res.status(400).json({ err });
-                let sql2 = `DELETE FROM groupomania.like l WHERE l.postId = ${req.body.postId} AND l.userId = ${req.body.userId}`;
-                pool.execute(sql2, function (err, result) {
+                let sql2 = `DELETE FROM groupomania.like l WHERE l.postId = ? AND l.userId = ?`;
+                pool.execute(sql2,[req.body.postId,req.body.userId], function (err, result) {
                     if (err) res.status(400).json({ err });
                     res.status(200).json(result)
                 });
@@ -36,8 +36,8 @@ exports.like = (req, res, next) => {
 }
 
 exports.liked = (req, res, next) => {
-    let sql2 = `SELECT postId FROM groupomania.like WHERE userId = ${req.body.userId}`;
-    pool.execute(sql2, function (err, result) {
+    let sql2 = `SELECT postId FROM groupomania.like WHERE userId = ?`;
+    pool.execute(sql2,[req.body.userId], function (err, result) {
         if (err) res.status(400).json({ err });
         res.status(200).json(result)
     });

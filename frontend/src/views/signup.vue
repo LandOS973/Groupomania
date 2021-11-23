@@ -31,21 +31,35 @@
             id="nom"
             name="nom"
             placeholder="Ton nom"
+            required
           />
+          <p v-if="errorNom" class="red">
+            Ton nom doit contenir au moins 3 caractères
+          </p>
           <input
             v-if="mode == 'signup'"
             type="text"
             id="prenom"
             name="prenom"
             placeholder="Ton prenom"
+            required
           />
+          <p v-if="errorPrenom" class="red">
+            Ton prénom doit contenir au moins 3 caractères
+          </p>
           <input type="text" id="email" name="email" placeholder="Ton email" />
+          <p v-if="errorEmail" class="red">Email invalide</p>
           <input
             type="text"
             id="password"
             name="login"
             placeholder="password"
+            required
           />
+          <p v-if="errorMdp" class="red">
+            Ton mot de passe doit contenir 8 caractères, une majuscule, une
+            minuscule et un caractère spécial
+          </p>
           <input
             v-if="mode == 'signup'"
             @click="signup()"
@@ -71,12 +85,15 @@
 </template>
 
 <style lang="scss" scoped>
+.red {
+  color: red;
+}
 .error {
   color: red;
   margin-top: -30px;
 }
 .signup {
-  margin-top: 70px;
+  margin-top: 100px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -339,15 +356,20 @@ input[type="text"]:placeholder {
 
 <script>
 import axios from "axios";
+const CryptoJS = require("crypto-js");
 
 export default {
   data() {
     return {
       mode: "signup",
       email: "",
+      errorEmail: false,
       password: "",
+      errorMdp: false,
       nom: "",
+      errorNom: false,
       prenom: "",
+      errorPrenom: false,
       incorrect: false,
     };
   },
@@ -358,28 +380,60 @@ export default {
     switchToLogin() {
       this.mode = "login";
     },
+    validation() {
+      let validEmail = new RegExp(
+        /^(([^<>()\]\\.,;:\s@"]+(\.[^<>()\]\\.,;:\s@"]+)*)|(".+"))@(([0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
+      );
+      let validName = new RegExp(
+        /^[a-zA-Z]+[a-zA-Z]+(([',. -][a-zA-Z ])?[a-zA-Z]*)*$/
+      );
+      let validPassword = new RegExp(
+        /^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[!@#$%^&*.]).{8,}$/
+      );
+      validEmail.test(this.email)
+        ? (this.errorEmail = false)
+        : (this.errorEmail = true);
+      validName.test(this.nom)
+        ? (this.errorNom = false)
+        : (this.errorNom = true);
+      validName.test(this.prenom)
+        ? (this.errorPrenom = false)
+        : (this.errorPrenom = true);
+      validPassword.test(this.password)
+        ? (this.errorMdp = false)
+        : (this.errorMdp = true);
+      console.log(validPassword.test(this.password))
+      return (
+        validEmail.test(this.email) &&
+        validName.test(this.nom) &&
+        validName.test(this.prenom) &&
+        validPassword.test(this.password)
+      );
+    },
     signup() {
       this.nom = document.querySelector("#nom").value;
       this.prenom = document.querySelector("#prenom").value;
       this.password = document.querySelector("#password").value;
       this.email = document.querySelector("#email").value;
-      const self = this;
-      axios
-        .post("http://localhost:3000/api/user/signup", {
-          nom: this.nom,
-          prenom: this.prenom,
-          email: this.email,
-          password: this.password,
-        })
-        .then(function (response) {
-          console.log(response);
-          self.mode = "login";
-          self.incorrect = false;
-        })
-        .catch(function (error) {
-          console.log(error);
-          self.$router.push("/");
-        });
+      if (this.validation()) {
+        const self = this;
+        axios
+          .post("http://localhost:3000/api/user/signup", {
+            nom: this.nom,
+            prenom: this.prenom,
+            email: this.email,
+            password: this.password,
+          })
+          .then(function (response) {
+            console.log(response);
+            self.mode = "login";
+            self.incorrect = false;
+          })
+          .catch(function (error) {
+            console.log(error);
+            self.$router.push("/");
+          });
+      }
     },
     login() {
       this.password = document.querySelector("#password").value;
@@ -392,11 +446,16 @@ export default {
         })
         .then(function (response) {
           const token = response.data.token;
-          const userId = response.data.userId;
+          const num = response.data.userId;
+          const userId = CryptoJS.AES.encrypt(
+            num.toString(),
+            self.$store.state.CryptoKey
+          ).toString();
+          console.log(userId);
           document.cookie = `user-token=${token}; SameSite=Lax; Secure; max-age=86400;`;
           document.cookie = `userId=${userId}; SameSite=Lax; Secure; max-age=86400;`;
-          self.$store.commit("changeUserId", userId);
           self.$router.push("/home");
+          self.$router.go();
         })
         .catch(function (error) {
           if (error) {
