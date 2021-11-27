@@ -3,9 +3,7 @@
     <div class="delete" v-if="deleteAccount">
       <div class="wrapper fadeInDown">
         <div id="formContent">
-          <h2 class="suppr" v-if="!modePassword" @click="switchTo()">
-            SUPPRIMER LE PROFIL
-          </h2>
+          <h2 class="suppr" v-if="!modePassword">SUPPRIMER LE PROFIL</h2>
           <!-- Modif Form -->
           <form v-on:submit.prevent="supprimerCompte()">
             <input
@@ -15,7 +13,7 @@
               placeholder="Mot de passe"
               required
             />
-            <div class="alert alert-danger" role="alert" v-if="errorMdp">
+            <div class="alert alert-danger app" role="alert" v-if="errorMdp">
               Mot de passe incorrect !
             </div>
             <button class="btn btn-danger mt-3 mb-5" @click="supprimerCompte()">
@@ -43,7 +41,7 @@
             Modifer ton mot de passe
           </h2>
           <!-- Modif Form -->
-          <form v-on:submit.prevent="modifier(), changePassword()">
+          <form v-on:submit.prevent="modifier, changePassword">
             <input
               type="text"
               id="nom"
@@ -65,9 +63,12 @@
               name="desc"
               placeholder="Poste chez Groupomania"
             />
+            <p class="red app" v-if="long && !modePassword">
+              Les champs doivent faire au moins 3 caractères.
+            </p>
             <input
               v-if="modePassword"
-              type="text"
+              type="password"
               id="oldPassword"
               name="login"
               placeholder="Ancien mot de passe"
@@ -75,12 +76,16 @@
             />
             <input
               v-if="modePassword"
-              type="text"
+              type="password"
               id="password"
               name="login"
               placeholder="Nouveau mot de passe"
               required
             />
+            <p class="red" v-if="errorNewMdp && modePassword">
+              Ton mot de passe doit contenir 8 caractères, une majuscule, une
+              minuscule et un caractère spécial
+            </p>
             <input
               v-if="!modePassword"
               @click="modifier()"
@@ -93,10 +98,10 @@
               type="submit"
               value="CHANGER MOT DE PASSE"
             />
-            <div class="alert alert-success" role="alert" v-if="update">
+            <div class="alert alert-success app" role="alert" v-if="update">
               Utilisateur mis à jour !
             </div>
-            <div class="alert alert-danger" role="alert" v-if="errorMdp">
+            <div class="alert alert-danger app" role="alert" v-if="errorMdp">
               Mot de passe incorrect !
             </div>
           </form>
@@ -118,6 +123,8 @@ const CryptoJS = require("crypto-js");
 export default {
   data() {
     return {
+      long: false,
+      errorNewMdp: false,
       deleteAccount: false,
       oldPassword: null,
       modePassword: false,
@@ -195,30 +202,39 @@ export default {
         .split("; ")
         .find((row) => row.startsWith("user-token="))
         .split("=")[1];
-
-      const self = this;
-      axios
-        .put(
-          `http://localhost:3000/api/user/modifyPassword/${self.userId}`,
-          {
-            oldPassword: self.oldPassword,
-            password: self.password,
-          },
-          {
-            headers: {
-              Authorization: `Bearer ${this.token}`,
+      let validPassword = new RegExp(
+        /^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[!@#$%^&*.]).{8,}$/
+      );
+      if (validPassword.test(this.password)) {
+        console.log(true);
+        const self = this;
+        axios
+          .put(
+            `http://localhost:3000/api/user/modifyPassword/${self.userId}`,
+            {
+              oldPassword: self.oldPassword,
+              password: self.password,
             },
-          }
-        )
-        .then(function (response) {
-          console.log(response);
-          self.update = true;
-        })
-        .catch(function (error) {
-          console.log(error);
-          self.errorMdp = true;
-          self.update = false;
-        });
+            {
+              headers: {
+                Authorization: `Bearer ${this.token}`,
+              },
+            }
+          )
+          .then(function (response) {
+            console.log(response);
+            self.update = true;
+          })
+          .catch(function (error) {
+            console.log(error);
+            self.errorMdp = true;
+            self.update = false;
+          });
+      } else {
+        console.log(false);
+        this.errorNewMdp = true;
+        this.update = false;
+      }
     },
     modifier() {
       this.nom = document.querySelector("#nom")
@@ -234,31 +250,39 @@ export default {
         .split("; ")
         .find((row) => row.startsWith("user-token="))
         .split("=")[1];
-
+      let validName = new RegExp(
+        /^[a-zA-Z]+[a-zA-Z]+[a-zA-Z]+(([',. -][a-zA-Z ])?[a-zA-Z]*){3,}$/
+      );
       const self = this;
-      axios
-        .put(
-          `http://localhost:3000/api/user/modifyAccount/${self.userId}`,
-          {
-            prenom: self.prenom,
-            nom: self.nom,
-            oldPassword: self.oldPassword,
-            password: self.password,
-            desc: self.desc,
-          },
-          {
-            headers: {
-              Authorization: `Bearer ${this.token}`,
+      if (
+        validName.test(this.nom) ||
+        validName.test(this.prenom) ||
+        validName.test(this.desc)
+      ) {
+        axios
+          .put(
+            `http://localhost:3000/api/user/modifyAccount/${self.userId}`,
+            {
+              prenom: self.prenom,
+              nom: self.nom,
+              desc: self.desc,
             },
-          }
-        )
-        .then(function (response) {
-          console.log(response);
-          self.update = true;
-        })
-        .catch(function (error) {
-          console.log(error);
-        });
+            {
+              headers: {
+                Authorization: `Bearer ${this.token}`,
+              },
+            }
+          )
+          .then(function (response) {
+            console.log(response);
+            self.update = true;
+          })
+          .catch(function (error) {
+            console.log(error);
+          });
+      } else {
+        self.long = true;
+      }
     },
   },
   mounted() {
@@ -270,6 +294,18 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+@keyframes disparition {
+  100% {
+    opacity: 0;
+  }
+}
+.app {
+  animation: disparition 3.5s forwards;
+}
+.red {
+  color: red;
+  margin: 0px;
+}
 .underlineHover {
   color: red;
   cursor: pointer;
@@ -402,7 +438,8 @@ input[type="reset"]:active {
   transform: scale(0.95);
 }
 
-input[type="text"] {
+input[type="text"],
+input[type="password"] {
   background-color: #f6f6f6;
   border: none;
   color: #0d0d0d;

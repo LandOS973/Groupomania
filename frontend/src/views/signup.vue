@@ -3,28 +3,28 @@
     <div class="wrapper fadeInDown">
       <div id="formContent">
         <!-- Tabs Titles -->
-        <h2 @click="switchToSignup()" v-if="mode == 'signup'" class="active">
+        <h2 @click="switchToSignup" v-if="mode == 'signup'" class="active">
           Sign Up
         </h2>
         <h2
-          @click="switchToSignup()"
+          @click="switchToSignup"
           v-if="mode == 'login'"
           class="inactive underlineHover"
         >
           Sign Up
         </h2>
-        <h2 @click="switchToLogin()" v-if="mode == 'login'" class="active">
+        <h2 @click="switchToLogin" v-if="mode == 'login'" class="active">
           Login
         </h2>
         <h2
-          @click="switchToLogin()"
+          @click="switchToLogin"
           v-if="mode == 'signup'"
           class="inactive underlineHover"
         >
           Login
         </h2>
         <!-- Login Form -->
-        <form v-on:submit.prevent="login()">
+        <form v-on:submit.prevent="login">
           <input
             v-if="mode == 'signup'"
             type="text"
@@ -33,7 +33,7 @@
             placeholder="Ton nom"
             required
           />
-          <p v-if="errorNom" class="red">
+          <p v-if="errorNom && mode == 'signup'" class="red">
             Ton nom doit contenir au moins 3 caractères
           </p>
           <input
@@ -44,31 +44,60 @@
             placeholder="Ton prenom"
             required
           />
-          <p v-if="errorPrenom" class="red">
+          <p v-if="errorPrenom && mode == 'signup'" class="red">
             Ton prénom doit contenir au moins 3 caractères
           </p>
-          <input type="text" id="email" name="email" placeholder="Ton email" />
-          <p v-if="errorEmail" class="red">Email invalide</p>
           <input
+            v-if="mode == 'signup'"
             type="text"
+            id="email"
+            name="email"
+            placeholder="Ton email"
+            required
+          />
+          <p v-if="errorEmail && mode == 'signup'" class="red">
+            Email invalide
+          </p>
+          <p v-if="sameEmail && mode == 'signup'" class="red">
+            Cet Email est déja utilisé.
+          </p>
+          <input
+            v-if="mode == 'signup'"
+            type="password"
             id="password"
             name="login"
             placeholder="password"
             required
           />
-          <p v-if="errorMdp" class="red">
+          <input
+            v-if="mode == 'login'"
+            type="text"
+            id="emailCheck"
+            name="email"
+            placeholder="Ton email"
+            required
+          />
+          <input
+            v-if="mode == 'login'"
+            type="password"
+            id="passwordCheck"
+            name="login"
+            placeholder="password"
+            required
+          />
+          <p v-if="errorMdp && mode == 'signup'" class="red">
             Ton mot de passe doit contenir 8 caractères, une majuscule, une
             minuscule et un caractère spécial
           </p>
           <input
             v-if="mode == 'signup'"
-            @click="signup()"
+            @click="signup"
             type="submit"
             value="INSCRIPTION"
           />
           <input
             v-if="mode == 'login'"
-            @click="login()"
+            @click="login"
             type="submit"
             value="CONNEXION"
           />
@@ -87,6 +116,8 @@
 <style lang="scss" scoped>
 .red {
   color: red;
+  padding: 0px;
+  margin: 0px;
 }
 .error {
   color: red;
@@ -205,6 +236,7 @@ input[type="reset"]:active {
   transform: scale(0.95);
 }
 
+input[type="password"],
 input[type="text"] {
   background-color: #f6f6f6;
   border: none;
@@ -361,6 +393,7 @@ const CryptoJS = require("crypto-js");
 export default {
   data() {
     return {
+      sameEmail: false,
       mode: "signup",
       email: "",
       errorEmail: false,
@@ -385,7 +418,7 @@ export default {
         /^(([^<>()\]\\.,;:\s@"]+(\.[^<>()\]\\.,;:\s@"]+)*)|(".+"))@(([0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
       );
       let validName = new RegExp(
-        /^[a-zA-Z]+[a-zA-Z]+(([',. -][a-zA-Z ])?[a-zA-Z]*)*$/
+        /^[a-zA-Z]+[a-zA-Z]+[a-zA-Z]+(([',. -][a-zA-Z ])?[a-zA-Z]*){3,}$/
       );
       let validPassword = new RegExp(
         /^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[!@#$%^&*.]).{8,}$/
@@ -402,7 +435,7 @@ export default {
       validPassword.test(this.password)
         ? (this.errorMdp = false)
         : (this.errorMdp = true);
-      console.log(validPassword.test(this.password))
+      console.log(validPassword.test(this.password));
       return (
         validEmail.test(this.email) &&
         validName.test(this.nom) &&
@@ -426,18 +459,38 @@ export default {
           })
           .then(function (response) {
             console.log(response);
-            self.mode = "login";
-            self.incorrect = false;
+            axios
+              .post("http://localhost:3000/api/user/login", {
+                email: self.email,
+                password: self.password,
+              })
+              .then(function (response) {
+                const token = response.data.token;
+                const num = response.data.userId;
+                const userId = CryptoJS.AES.encrypt(
+                  num.toString(),
+                  self.$store.state.CryptoKey
+                ).toString();
+                document.cookie = `user-token=${token}; SameSite=Lax; Secure; max-age=86400;`;
+                document.cookie = `userId=${userId}; SameSite=Lax; Secure; max-age=86400;`;
+                self.$router.push("/home");
+                self.$router.go();
+              })
+              .catch(function (error) {
+                if (error) {
+                  self.incorrect = true;
+                }
+              });
           })
           .catch(function (error) {
             console.log(error);
-            self.$router.push("/");
+            self.sameEmail = true;
           });
       }
     },
     login() {
-      this.password = document.querySelector("#password").value;
-      this.email = document.querySelector("#email").value;
+      this.password = document.querySelector("#passwordCheck").value;
+      this.email = document.querySelector("#emailCheck").value;
       const self = this;
       axios
         .post("http://localhost:3000/api/user/login", {
@@ -451,7 +504,6 @@ export default {
             num.toString(),
             self.$store.state.CryptoKey
           ).toString();
-          console.log(userId);
           document.cookie = `user-token=${token}; SameSite=Lax; Secure; max-age=86400;`;
           document.cookie = `userId=${userId}; SameSite=Lax; Secure; max-age=86400;`;
           self.$router.push("/home");
@@ -463,6 +515,18 @@ export default {
           }
         });
     },
+  },
+  mounted() {
+    if (document.cookie) {
+      const userIdCookie = document.cookie
+        .split("; ")
+        .find((row) => row.startsWith("userId="))
+        .split("=")[1];
+      console.log(userIdCookie);
+      if (userIdCookie) {
+        this.$router.push("/home");
+      }
+    }
   },
 };
 </script>

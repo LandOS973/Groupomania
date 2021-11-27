@@ -43,20 +43,25 @@ exports.delete = (req, res, next) => {
         if (err) res.status(400).json({ err });
         if (!result[0]) res.status(400).json({ message: "Aucun id ne correspond dans la table" });
         else {
-            // SI LE POST A UNE IMAGE, LA SUPPRIMER DU DOSSIER IMAGES
-            if (result[0].imageUrl != "") {
-                const name = result[0].imageUrl.split('/images/post/')[1];
-                fs.unlink(`images/post/${name}`, () => {
-                    if (err) console.log(err);
-                    else console.log('Image supprimée  !');
-                })
+            if (result[0].authorId == req.body.userId || req.body.admin == true) {
+                // SI LE POST A UNE IMAGE, LA SUPPRIMER DU DOSSIER IMAGES
+                if (result[0].imageUrl != "") {
+                    const name = result[0].imageUrl.split('/images/post/')[1];
+                    fs.unlink(`images/post/${name}`, () => {
+                        if (err) console.log(err);
+                        else console.log('Image supprimée  !');
+                    })
+                }
+                // SUPPRIME LE POST DANS LA DB
+                let sql2 = `DELETE FROM post WHERE postId = ?`;
+                pool.execute(sql2, [req.params.id], function (err, result) {
+                    if (err) throw err;
+                    res.status(201).json({ message: `Post supprimé` });
+                });
+            } else {
+                res.status(401).json({message : "Bien essayé petit malin"});
             }
-            // SUPPRIME LE POST DANS LA DB
-            let sql2 = `DELETE FROM post WHERE postId = ?`;
-            pool.execute(sql2, [req.params.id], function (err, result) {
-                if (err) throw err;
-                res.status(201).json({ message: `Post supprimé` });
-            });
+
         }
     });
 };
