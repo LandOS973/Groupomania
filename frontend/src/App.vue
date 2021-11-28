@@ -150,7 +150,7 @@ a:link {
   width: 221px;
   border: 1px solid #dbdbdb;
   background-color: white;
-  &:hover{
+  &:hover {
     background-color: #90b3d6;
   }
 }
@@ -360,7 +360,9 @@ export default {
         )
         .then((response) => (self.user = response.data[0]))
         .catch(function (error) {
-          if (error.response && error.response.status === 403) {
+          if (error.response && error.response.status === 400) {
+            document.cookie = "userId=";
+            document.cookie = "user-token=";
             self.$router.push("/");
           }
         });
