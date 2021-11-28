@@ -217,7 +217,7 @@
       </div>
     </div>
     <div v-else class="noPost">
-      <p class="text-noPost">Aucun post ici pour le moment ... </p>
+      <p class="text-noPost">Aucun post ici pour le moment ...</p>
     </div>
   </router-view>
 </template>
@@ -488,12 +488,15 @@ export default {
 
     this.getPost();
     this.liked();
+    if (!this.userId) {
+      this.$router.push("/");
+    }
   },
 };
 </script>
 
 <style lang="scss" scoped>
-.text-noPost{
+.text-noPost {
   text-align: center;
   font-weight: 500;
   font-style: italic;
