@@ -31,7 +31,7 @@
         <div class="text-user">
           <p class="userName">{{ currentUser.prenom }} {{ currentUser.nom }}</p>
           <p v-if="currentUser.desc" class="metier">
-            Métier : {{ currentUser.desc }}
+            <strong>Métier :</strong> {{ currentUser.desc }}
           </p>
         </div>
       </div>
@@ -68,8 +68,8 @@
                   <div class="d-flex flex-column flex-wrap ml-2">
                     <span class="font-weight-bold nomUser"
                       >{{ post.prenom }} {{ post.nom }}</span
-                    ><span class="text-black-50 time"
-                      >Posté le {{ post.date }}</span
+                    ><span class="text-black-50"
+                      >Posté le {{ formatDate(post.date) }}</span
                     >
                   </div>
                   <img
@@ -198,19 +198,22 @@
         </div>
       </div>
       <div v-else class="noPosts">
-        <p class="noPosts_text" v-if="currentUser"><strong>{{ currentUser.prenom }} {{ currentUser.nom }}</strong> n'a encore jamais publié de posts.</p>
+        <p class="noPosts_text" v-if="currentUser">
+          <strong>{{ currentUser.prenom }} {{ currentUser.nom }}</strong> n'a
+          encore jamais publié de posts.
+        </p>
       </div>
     </div>
   </div>
 </template>
 
 <style lang="scss" scoped>
-.noPosts{
-  margin-top:200px;
+.noPosts {
+  margin-top: 200px;
   max-width: 500px;
   margin-left: auto;
   margin-right: auto;
-  &_text{
+  &_text {
     text-align: center;
   }
 }
@@ -389,10 +392,12 @@
 }
 .nomUser {
   font-weight: bold;
+  font-size: 19px;
 }
 .pp {
   margin-right: 18px;
-  height: 45px;
+  height: 55px;
+  width: 55px;
 }
 
 .pp2 {
@@ -460,7 +465,7 @@ const CryptoJS = require("crypto-js");
 export default {
   data() {
     return {
-      first:null,
+      first: null,
       image: null,
       userIdPage: this.$route.params.userId,
       user: null,
@@ -488,6 +493,14 @@ export default {
     };
   },
   methods: {
+    formatDate(input) {
+      console.log(input);
+      var datePart = input.match(/\d+/g),
+        year = datePart[0].substring(2), // get only two digits
+        month = datePart[1],
+        day = datePart[2];
+      return day + "/" + month + "/" + year;
+    },
     modifPP(event) {
       this.image = event.target.files[0];
       console.log(this.image);
@@ -704,7 +717,6 @@ export default {
         .then((response) => {
           this.posts = response.data;
           this.first = this.posts[0];
-          console.log(this.first)
           axios
             .get("http://localhost:3000/api/comment", {
               headers: { Authorization: `Bearer ${this.token}` },

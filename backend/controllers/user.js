@@ -54,8 +54,8 @@ exports.signup = (req, res, next) => {
                     })
                 })
                 .catch(error => res.status(500).json({ error }));
-        }else{
-            res.status(401).json({message : "Email déja pris"})
+        } else {
+            res.status(401).json({ message: "Email déja pris" })
         }
     })
 
@@ -88,6 +88,14 @@ exports.login = (req, res, next) => {
 exports.getOne = (req, res, next) => {
     let sql = `SELECT * FROM user WHERE user.id=${req.body.userId};`;
     pool.execute(sql, function (err, result) {
+        if (err) res.status(400).json({ err });
+        res.status(200).json(result)
+    });
+}
+
+exports.getAs = (req, res, next) => {
+    let sql = `SELECT * FROM user WHERE nom LIKE '%${req.body.nom}%' OR prenom LIKE '%${req.body.nom}%' LIMIT 12;`;
+    pool.execute(sql, [req.body.nom], function (err, result) {
         if (err) res.status(400).json({ err });
         res.status(200).json(result)
     });

@@ -11,7 +11,8 @@ router.post("/signup", validEmail, multer, userCtrl.signup);
 router.post("/login", userCtrl.login);
 router.put("/modify/:id", authTokenId, multer, userCtrl.modifyPP);
 router.put("/modifyAccount/:id", authTokenId, userCtrl.modifAccount);
-router.put("/modifyPassword/:id", authTokenId ,userCtrl.modifyPassword);
+router.put("/modifyPassword/:id", authTokenId, userCtrl.modifyPassword);
 router.post("/", auth, userCtrl.getOne);
+router.post("/getAs", auth, userCtrl.getAs);
 
 module.exports = router;

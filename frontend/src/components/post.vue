@@ -33,7 +33,7 @@
                 class="form-control mb-2"
                 id="text"
                 aria-describedby="emailHelp"
-                placeholder="Quoi de neuf ?"
+                placeholder=" Quoi de neuf ?"
               />
             </div>
             <div class="d-flex justify-content-between">
@@ -87,8 +87,8 @@
                 <div class="d-flex flex-column flex-wrap ml-2">
                   <span class="font-weight-bold nomUser"
                     >{{ post.prenom }} {{ post.nom }}</span
-                  ><span class="text-black-50 time"
-                    >Posté le {{ post.date }}</span
+                  ><span class="text-black-50"
+                    >Posté le {{ formatDate(post.date) }}</span
                   >
                 </div>
                 <img
@@ -217,7 +217,7 @@
       </div>
     </div>
     <div v-else class="noPost">
-      <img src="../../image/travolta.gif" alt="" srcset="">
+      <p class="text-noPost">Aucun post ici pour le moment ... </p>
     </div>
   </router-view>
 </template>
@@ -254,6 +254,13 @@ export default {
     };
   },
   methods: {
+    formatDate(input) {
+      var datePart = input.match(/\d+/g),
+        year = datePart[0].substring(2), // get only two digits
+        month = datePart[1],
+        day = datePart[2];
+      return day + "/" + month + "/" + year;
+    },
     afficherComment(event) {
       let path;
       if (event.path[3].children[3].matches(".react")) {
@@ -486,10 +493,16 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-.noPost{
+.text-noPost{
+  text-align: center;
+  font-weight: 500;
+  font-style: italic;
+  font-size: 20px;
+}
+.noPost {
   width: 500px;
   margin: auto;
-  margin-top : 100px;
+  margin-top: 100px;
 }
 .infopost {
   position: relative;
@@ -616,10 +629,12 @@ export default {
 }
 .nomUser {
   font-weight: bold;
+  font-size: 19px;
 }
 .pp {
   margin-right: 18px;
-  height: 45px;
+  height: 55px;
+  width: 55px;
 }
 
 .pp2 {
