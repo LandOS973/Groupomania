@@ -174,12 +174,16 @@
               :key="comment.idComment"
             >
               <div class="pp" v-if="post.postId === comment.postId">
-                <img
-                  class="rounded-circle pp2"
-                  v-bind:src="comment.pp"
-                  alt=""
-                  srcset=""
-                />
+                <router-link
+                  :to="{ name: 'user', params: { userId: comment.authorId } }"
+                >
+                  <img
+                    class="rounded-circle pp2"
+                    v-bind:src="comment.pp"
+                    alt="pp comment"
+                    srcset=""
+                  />
+                </router-link>
               </div>
               <div v-if="post.postId === comment.postId" class="commentaire">
                 <span class="commentAuthor"
@@ -503,6 +507,7 @@ export default {
   font-weight: 500;
   font-style: italic;
   font-size: 20px;
+  color: #091f43;
 }
 .noPost {
   width: 500px;
@@ -519,8 +524,10 @@ export default {
   width: 95%;
   margin-left: auto;
   margin-right: auto;
+  color: #091f43;
 }
 .imagePost {
+  object-fit: cover;
   max-height: 500px;
   width: 100%;
   margin: 0px;
@@ -539,7 +546,6 @@ export default {
   justify-content: center;
   align-items: center;
   margin-bottom: 15px;
-
   padding-bottom: 5px;
 }
 
@@ -573,6 +579,7 @@ export default {
   width: 45px;
   margin-right: 10px;
   border-radius: 100%;
+  object-fit: cover;
 }
 .publier {
   width: 100px;
@@ -587,6 +594,7 @@ export default {
 #text {
   border-radius: 20px;
   background-color: #f0f2f5;
+  color: #091f43;
 }
 
 .nbr {
@@ -622,12 +630,14 @@ export default {
 .commentText {
   margin-left: 10px;
   margin-right: 10px;
+  color: #091f43;
 }
 .commentAuthor {
   font-weight: bold;
   margin-left: 10px;
   margin-right: 10px;
   padding-top: 10px;
+  color: #091f43;
 }
 .comment {
   margin: auto;
@@ -635,14 +645,17 @@ export default {
 .nomUser {
   font-weight: bold;
   font-size: 19px;
+  color: #091f43;
 }
 .pp {
+  object-fit: cover;
   margin-right: 18px;
   height: 55px;
   width: 55px;
 }
 
 .pp2 {
+  object-fit: cover;
   height: 40px;
   width: 40px;
   margin-left: 20px;

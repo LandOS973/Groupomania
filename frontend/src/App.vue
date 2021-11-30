@@ -138,6 +138,7 @@ a:link {
   text-decoration: none;
 }
 .imgSearch {
+  object-fit: cover;
   height: 45px;
   width: 45px;
   margin: 10px;
