@@ -243,6 +243,7 @@
   margin-top: 50px;
 }
 .ppChange {
+  object-fit: cover;
   height: 200px;
   width: 200px;
   border-radius: 50%;

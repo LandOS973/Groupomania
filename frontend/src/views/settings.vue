@@ -148,12 +148,6 @@ export default {
   },
   methods: {
     supprimerCompte() {
-      this.userId = document.cookie
-        ? document.cookie
-            .split("; ")
-            .find((row) => row.startsWith("userId="))
-            .split("=")[1]
-        : null;
       this.password = document.querySelector("#password")
         ? document.querySelector("#password").value
         : null;

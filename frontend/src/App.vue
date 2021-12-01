@@ -160,6 +160,7 @@ a:hover {
   transform: scale(1.1);
 }
 .userPageLink {
+  object-fit: cover;
   height: 40px;
   width: 40px;
   margin-top: 0px;
