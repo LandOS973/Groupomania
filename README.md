@@ -12,6 +12,8 @@
 
 ### - Technologies utilisées :
 NodeJs - VueJs - MySQL - Bootstrap - Sass
+
+Démo du site sur youtube : https://www.youtube.com/watch?v=RFtriVHPOjM&t=2s&ab_channel=ThomasLandais
   
 ## INSTALLATION
 ### Prérequis :
