@@ -28,7 +28,7 @@ Il vous faut avoir installé sur votre machine :
 Créer un dossier vide puis cloner ce repository à l'intérieur : 
 
 ```
-git clone https://github.com/ThomasL9731/Groupomania.git
+git clone https://github.com/LandOS973/Groupomania.git
 ```
 ## MySQL
 Dans le fichier groupomania/backend/.env ,mettre le mot de passe d'accès à votre base de donnée et votre nom d'utilisateur si besoin (root par défaut)
